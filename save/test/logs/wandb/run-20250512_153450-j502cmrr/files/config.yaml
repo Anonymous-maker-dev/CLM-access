@@ -1,0 +1,106 @@
+_wandb:
+    value:
+        cli_version: 0.19.9
+        m:
+            - "1": trainer/global_step
+              "6":
+                - 3
+              "7": []
+        python_version: 3.10.0
+        t:
+            "1":
+                - 1
+                - 5
+                - 11
+                - 40
+                - 41
+                - 49
+                - 51
+                - 52
+                - 53
+                - 55
+                - 106
+            "2":
+                - 1
+                - 5
+                - 11
+                - 40
+                - 41
+                - 49
+                - 51
+                - 52
+                - 53
+                - 55
+                - 106
+            "3":
+                - 7
+                - 13
+                - 23
+                - 55
+                - 66
+            "4": 3.10.0
+            "5": 0.19.9
+            "6": 4.51.3
+            "8":
+                - 5
+            "12": 0.19.9
+            "13": linux-x86_64
+config:
+    value:
+        activation_dropout: 0
+        activation_fn: gelu
+        adam_weight_decay: 0.01
+        atac_dataset_path: /t9k/mnt/scllm/liuziqiang/scCLIP_all_peaks/patch_2000/train/dataset_sort_numpy_1
+        atac_vocab_file: /t9k/mnt/scllm/scCLIP/atac/patched_2000_unified/scCLIP_ATAC_vocabulary_with_special_2000_unified.json
+        atac_vocab_size: 2002
+        attention_dropout: 0.1
+        batch_correction: false
+        batch_size: 8
+        cell_type_annotation: false
+        checkpoint_activations: false
+        context_length: 2000
+        dirpath: /t9k/mnt/code/CLM-access/save/test/
+        dropout: 0.1
+        encoder_attention_heads: 8
+        encoder_embed_dim: 256
+        encoder_ffn_embed_dim: 256
+        encoder_layers: 8
+        end_lr: 0
+        every_n_train_steps: 200
+        exp_name: ATAC-pretrain
+        fast_dev_run: false
+        gene_tokens: '[2000  628 1597 ...  204 1246 1999]'
+        grad_steps: 1
+        input_mod: ATAC
+        learning_rate: 0.0001
+        load_path: ""
+        load_to_cpu: false
+        log_dir: /t9k/mnt/code/CLM-access/save/test/logs
+        mask_id: 1998
+        mask_ratio: 0.15
+        mask_token: false
+        max_epoch: 15
+        max_steps: 3000000
+        model_load_path: null
+        model_task: pretrain
+        multiway: true
+        num_gpus: 1
+        num_nodes: 1
+        num_warmup_steps: 10000
+        num_workers: 8
+        optim_type: adamw
+        pad_id: 1999
+        peak_length: 600
+        per_gpu_batchsize: 8
+        pin_mem: true
+        pre_norm: false
+        precision: 16
+        project_name: CLM-access
+        resume_during_training: false
+        resume_from: null
+        resume_from_checkpoint: null
+        seed: 1
+        task: atacmlm
+        test_only: false
+        use_sharded_training: false
+        val_check_interval: null

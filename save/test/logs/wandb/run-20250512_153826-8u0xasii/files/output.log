@@ -1,0 +1,19 @@
+/t9k/mnt/.conda/envs/cellstory-v1/lib/python3.10/site-packages/lightning/pytorch/callbacks/model_checkpoint.py:654: Checkpoint directory /t9k/mnt/code/CLM-access/save/test exists and is not empty.
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1,2]
+
+  | Name       | Type     | Params | Mode
+------------------------------------------------
+0 | beit3      | BEiT3    | 3.9 M  | train
+1 | mlm_scorer | ExprHead | 285 K  | train
+------------------------------------------------
+4.2 M     Trainable params
+0         Non-trainable params
+4.2 M     Total params
+16.724    Total estimated model params size (MB)
+160       Modules in train mode
+0         Modules in eval mode
+Epoch 0:   0%|                                                                                       | 40/42003 [00:11<3:24:10,  3.43it/s, v_num=asii, train_loss_step=0.696]
+/t9k/mnt/.conda/envs/cellstory-v1/lib/python3.10/site-packages/lightning/pytorch/trainer/connectors/logger_connector/result.py:434: It is recommended to use `self.log('val_loss', ..., sync_dist=True)` when logging on epoch level in distributed setting to accumulate the metric across devices.
+
+Detected KeyboardInterrupt, attempting graceful shutdown ...
+ERROR - CellStory - Failed after 0:00:59!

@@ -1,0 +1,55 @@
+{
+  "os": "Linux-5.4.0-153-generic-x86_64-with-glibc2.35",
+  "python": "CPython 3.10.0",
+  "startedAt": "2025-05-12T07:34:50.223573Z",
+  "args": [
+    "with",
+    "pretrain_atac",
+    "--force"
+  ],
+  "program": "/t9k/mnt/code/CLM-access/scripts/run_pretrain.py",
+  "codePath": "run_pretrain.py",
+  "email": "1017231484@qq.com",
+  "root": "/t9k/mnt/code/CLM-access/save/test/logs",
+  "host": "managed-notebook-16e00-0",
+  "executable": "/t9k/mnt/.conda/envs/cellstory-v1/bin/python",
+  "codePathLocal": "run_pretrain.py",
+  "cpu_count": 32,
+  "cpu_count_logical": 64,
+  "gpu": "NVIDIA A40",
+  "gpu_count": 3,
+  "disk": {
+    "/": {
+      "total": "7557678448640",
+      "used": "259513683968"
+    }
+  },
+  "memory": {
+    "total": "540674957312"
+  },
+  "cpu": {
+    "count": 32,
+    "countLogical": 64
+  },
+  "gpu_nvidia": [
+    {
+      "name": "NVIDIA A40",
+      "memoryTotal": "48305799168",
+      "cudaCores": 10752,
+      "architecture": "Ampere"
+    },
+    {
+      "name": "NVIDIA A40",
+      "memoryTotal": "48305799168",
+      "cudaCores": 10752,
+      "architecture": "Ampere"
+    },
+    {
+      "name": "NVIDIA A40",
+      "memoryTotal": "48305799168",
+      "cudaCores": 10752,
+      "architecture": "Ampere"
+    }
+  ],
+  "cudaVersion": "12.1"
+}

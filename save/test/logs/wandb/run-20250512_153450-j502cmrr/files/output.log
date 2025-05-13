@@ -1,0 +1,68 @@
+/t9k/mnt/.conda/envs/cellstory-v1/lib/python3.10/site-packages/lightning/pytorch/callbacks/model_checkpoint.py:654: Checkpoint directory /t9k/mnt/code/CLM-access/save/test exists and is not empty.
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1,2]
+
+  | Name       | Type     | Params | Mode
+------------------------------------------------
+0 | beit3      | BEiT3    | 3.9 M  | train
+1 | mlm_scorer | ExprHead | 285 K  | train
+------------------------------------------------
+4.2 M     Trainable params
+0         Non-trainable params
+4.2 M     Total params
+16.724    Total estimated model params size (MB)
+160       Modules in train mode
+0         Modules in eval mode
+Sanity Checking DataLoader 0:   0%|                                                                                                                    | 0/2 [00:00<?, ?it/s]
+ERROR - CellStory - Failed after 0:00:28!
+Traceback (most recent calls WITHOUT Sacred internals):
+  File "/t9k/mnt/code/CLM-access/scripts/run_pretrain.py", line 133, in main
+    trainer.fit(model, train_dataloaders=train_dataloader, val_dataloaders=val_dataloader,ckpt_path = args_.resume_from_checkpoint)
+  File "/t9k/mnt/.conda/envs/cellstory-v1/lib/python3.10/site-packages/lightning/pytorch/trainer/trainer.py", line 561, in fit
+    call._call_and_handle_interrupt(
+  File "/t9k/mnt/.conda/envs/cellstory-v1/lib/python3.10/site-packages/lightning/pytorch/trainer/call.py", line 47, in _call_and_handle_interrupt
+    return trainer.strategy.launcher.launch(trainer_fn, *args, trainer=trainer, **kwargs)
+  File "/t9k/mnt/.conda/envs/cellstory-v1/lib/python3.10/site-packages/lightning/pytorch/strategies/launchers/subprocess_script.py", line 105, in launch
+    return function(*args, **kwargs)
+  File "/t9k/mnt/.conda/envs/cellstory-v1/lib/python3.10/site-packages/lightning/pytorch/trainer/trainer.py", line 599, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/t9k/mnt/.conda/envs/cellstory-v1/lib/python3.10/site-packages/lightning/pytorch/trainer/trainer.py", line 1012, in _run
+    results = self._run_stage()
+  File "/t9k/mnt/.conda/envs/cellstory-v1/lib/python3.10/site-packages/lightning/pytorch/trainer/trainer.py", line 1054, in _run_stage
+    self._run_sanity_check()
+  File "/t9k/mnt/.conda/envs/cellstory-v1/lib/python3.10/site-packages/lightning/pytorch/trainer/trainer.py", line 1083, in _run_sanity_check
+    val_loop.run()
+  File "/t9k/mnt/.conda/envs/cellstory-v1/lib/python3.10/site-packages/lightning/pytorch/loops/utilities.py", line 179, in _decorator
+    return loop_run(self, *args, **kwargs)
+  File "/t9k/mnt/.conda/envs/cellstory-v1/lib/python3.10/site-packages/lightning/pytorch/loops/evaluation_loop.py", line 145, in run
+    self._evaluation_step(batch, batch_idx, dataloader_idx, dataloader_iter)
+  File "/t9k/mnt/.conda/envs/cellstory-v1/lib/python3.10/site-packages/lightning/pytorch/loops/evaluation_loop.py", line 437, in _evaluation_step
+    output = call._call_strategy_hook(trainer, hook_name, *step_args)
+  File "/t9k/mnt/.conda/envs/cellstory-v1/lib/python3.10/site-packages/lightning/pytorch/trainer/call.py", line 328, in _call_strategy_hook
+    output = fn(*args, **kwargs)
+  File "/t9k/mnt/.conda/envs/cellstory-v1/lib/python3.10/site-packages/lightning/pytorch/strategies/strategy.py", line 411, in validation_step
+    return self._forward_redirection(self.model, self.lightning_module, "validation_step", *args, **kwargs)
+  File "/t9k/mnt/.conda/envs/cellstory-v1/lib/python3.10/site-packages/lightning/pytorch/strategies/strategy.py", line 641, in __call__
+    wrapper_output = wrapper_module(*args, **kwargs)
+  File "/t9k/mnt/.conda/envs/cellstory-v1/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1518, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/t9k/mnt/.conda/envs/cellstory-v1/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1527, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/t9k/mnt/.conda/envs/cellstory-v1/lib/python3.10/site-packages/torch/nn/parallel/distributed.py", line 1519, in forward
+    else self._run_ddp_forward(*inputs, **kwargs)
+  File "/t9k/mnt/.conda/envs/cellstory-v1/lib/python3.10/site-packages/torch/nn/parallel/distributed.py", line 1355, in _run_ddp_forward
+    return self.module(*inputs, **kwargs)  # type: ignore[index]
+  File "/t9k/mnt/.conda/envs/cellstory-v1/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1518, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/t9k/mnt/.conda/envs/cellstory-v1/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1527, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/t9k/mnt/.conda/envs/cellstory-v1/lib/python3.10/site-packages/lightning/pytorch/strategies/strategy.py", line 634, in wrapped_forward
+    out = method(*_args, **_kwargs)
+  File "/t9k/mnt/code/CLM-access/models/beitv3_pl_value.py", line 618, in validation_step
+    mlm_logits, mlm_labels= self.infer_atac_mlm(batch)
+  File "/t9k/mnt/code/CLM-access/models/beitv3_pl_value.py", line 317, in infer_atac_mlm
+    outputs = self.beit3(
+  File "/t9k/mnt/.conda/envs/cellstory-v1/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1518, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/t9k/mnt/.conda/envs/cellstory-v1/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1527, in _call_impl
+    return forward_call(*args, **kwargs)
+TypeError: BEiT3.forward() got an unexpected keyword argument 'rna_tokens'
