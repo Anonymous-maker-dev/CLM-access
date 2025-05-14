@@ -221,6 +221,43 @@ class ClsDecoder(nn.Module):
         )
         
         return predicted_label
+class RNA_Decoder(nn.Module):
+    """
+    A neural network classifier with multiple layers for cell type classification.
+
+    Args:
+        embedding_dim (int): Dimension of the input embeddings.
+        num_classes (int): Number of cell type classes to predict.
+    """
+    def __init__(self, embedding_dim, num_classes):
+        super(RNA_Decoder, self).__init__()
+        self.gelu = nn.GELU()
+        self.dropout = nn.Dropout(0.3)
+        self.fc1 = nn.Linear(embedding_dim, 512)
+        self.layer_norm1 = nn.LayerNorm(512)
+        self.fc2 = nn.Linear(512, 1024)
+        self.layer_norm2 = nn.LayerNorm(1024)
+        self.fc3 = nn.Linear(1024, num_classes)
+
+
+    def forward(self, X):
+        """
+        Forward pass for the classifier.
+
+        Args:
+            X (tensor): Input features.
+            calculate_loss (bool): Whether to calculate loss (default: False).
+            target (tensor): Ground truth labels (required if calculate_loss is True).
+
+        Returns:
+            tensor: Predicted labels.
+            tensor (optional): Computed loss if calculate_loss is True.
+        """
+        predicted_label = self.fc3(
+            self.layer_norm2(self.gelu(self.fc2(self.dropout(self.layer_norm1(self.fc1(X))))))
+        )
+        
+        return predicted_label
 class BeitForPretrain(pl.LightningModule):
     def __init__(self, config):
         super().__init__()
@@ -236,6 +273,8 @@ class BeitForPretrain(pl.LightningModule):
    
         if config.cell_type_annotation:
             self.cell_type_annotation = ClsDecoder(config.encoder_embed_dim,config.cell_type_number)
+        if config.RNA_prediction:
+            self.RNA_prediction = RNA_Decoder(config.encoder_embed_dim,config.hvg)
         if config.batch_correction:
             self.batch_encoder = BatchLabelEncoder(config.batch_number, config.encoder_embed_dim)
             self.decoder = ExprDecoder(d_model= config.encoder_embed_dim,explicit_zero_prob= True,use_batch_labels= config.batch_correction,peak_length=config.peak_length)
@@ -359,6 +398,66 @@ class BeitForPretrain(pl.LightningModule):
   
         
         return atac_feats,batch_label.to(self.device)  
+    
+    def infer_RNA_predict(self, batch_value, embedding_type):
+        # 添加类型转换确保输入为 float32
+        batch_value = batch_value.float() 
+        """
+        vision masking pretrain
+        just return the masked position vision token predicates
+        """
+        """
+        text_padding_position: just text padding postion, 1 means the padding postion, avoid performing attention on padding token indices; as attention_mask in bert
+        attn_mask: attn_mask = attn_mask.masked_fill(attn_mask.to(torch.bool), -1e8); attn_weights += attn_mask
+            This argument indicates to the model which tokens should be attended to, and which should not.
+        vision_masked_position: mask vision input embedding(VisionEmbedding), value 1 will mask the related vision position
+        positions: position ids to get position embedding, if none, it will do automatically
+        """
+        # as the no, the length is fixed, no vision padding token
+       
+      
+        gene_tokens = torch.from_numpy(self.config.gene_tokens).repeat(len(batch_value), 1,1).squeeze().to(self.device) 
+        padding_mask = gene_tokens.eq(self.config.pad_id)
+      
+        outputs = self.beit3(
+            atac_tokens= gene_tokens.long(),
+            rna_tokens=None,  # 文本token输入
+            values_atac=batch_value.float().to(self.device) ,
+            values_rna=None,
+            atac_padding_position=padding_mask,
+            rna_padding_position=None,  # 文本padding位置
+            attn_mask=None,  # 注意力掩码
+        )
+        if embedding_type == "cls":
+            atac_feats = outputs["encoder_out"][:, 0, :]
+        elif embedding_type == "avg_pool":
+            atac_feats_without_cls = outputs["encoder_out"][
+                    :, 1:, :
+                ]  # 去除每个序列的第一个元素
+                # 如果padding_mask也需要相应调整
+            padding_mask_without_cls = padding_mask[
+                :, 1:
+            ]  # 同样去除每个序列的第一个元素
+            padding_mask_without_cls_ = ~padding_mask_without_cls
+            padding_mask_without_cls_ = torch.unsqueeze(
+                padding_mask_without_cls_, dim=2
+            )
+            repr_wopadding = atac_feats_without_cls * padding_mask_without_cls_
+            atac_feats = torch.sum(repr_wopadding, dim=1) / torch.unsqueeze(
+                torch.sum(~padding_mask_without_cls, dim=1), dim=1
+            )
+
+        
+        # 如果存在语言掩码位置，则只获取这些位置的特征
+        
+
+      
+       
+        # atac_feats = self.mlm_scorer(atac_feats).reshape(len(atac_feats),self.config.context_length*256)
+        RNA_feats = self.RNA_prediction(atac_feats)
+  
+        
+        return RNA_feats  
     def infer_atac_batch_correction(self,batch_value,batch_label,embedding_type):
         """
         vision masking pretrain
@@ -476,6 +575,18 @@ class BeitForPretrain(pl.LightningModule):
      
                 FocalCELoss = FocalLoss()
                 loss =FocalCELoss(atac_logits, atac_labels.long().view(-1))
+
+            elif self.config.RNA_prediction:
+                # 添加显式类型转换
+                ATAC_value = torch.stack(batch[0], dim=1).float() if isinstance(batch[0], list) else batch[0].float()
+                RNA_logits = self.infer_RNA_predict(ATAC_value.to(self.device), self.config.embedding_type)
+                
+                RNA_value = torch.stack(batch[1]["value"], dim=1).float() if isinstance(batch[1]["value"], list) else batch[1]["value"].float()
+                RNA_value = RNA_value.to(self.device)
+                
+             
+                
+                loss = F.mse_loss(RNA_logits, RNA_value, reduction="mean")
             
             elif self.config.batch_correction:
 
@@ -535,6 +646,11 @@ class BeitForPretrain(pl.LightningModule):
            
                 CELoss = FocalLoss()
                 loss = CELoss(atac_logits, atac_labels.long().view(-1))
+
+            
+
+
+            
             elif self.config.batch_correction:
 
                 batch_value = batch[:, :-1,:].clone()
