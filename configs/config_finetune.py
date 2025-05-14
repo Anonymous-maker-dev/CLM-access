@@ -106,3 +106,36 @@ def finetune_atac():
         "/t9k/mnt/code/CLM-access/dataset/ATAC_vocabulary_with_special_2000_unified.json"
     )
     input_mod = "ATAC"
+
+@ex.named_config
+def finetune_atac_rna():
+    exp_name = "ATAC-finetune"
+    task = "atacmlm"
+    model_task = "finetune"
+    learning_rate = 1e-4
+    cell_type_annotation =False
+    batch_correction = False
+    RNA_prediction = True
+    hvg=2000
+    embedding_type = "cls"
+    mask_token = False
+    model_load_path = "/t9k/mnt/code/CLM-access/save/pretrain/ATAC-pretrain.ckpt"
+    dirpath = (
+        "/t9k/mnt/code/CLM-access/save/test/"
+    )
+    resume_from_checkpoint = None
+    context_length = 2000  # 2000  5000
+    peak_length = 600   # 600   256
+    pad_id = 1999   # 1999  4999
+    mask_id = 1998  # 1998 4998
+    log_dir = os.path.join(dirpath, "logs")
+    model_load_path = None
+    
+    # preprocess & tokenize input settings
+
+    atac_dataset_path = "input atac_dataset_path"
+    atac_vocab_file = (
+        "/t9k/mnt/code/CLM-access/dataset/ATAC_vocabulary_with_special_2000_unified.json"
+    )
+    hvg_rna_dataset_path = "input hvg_rna_dataset_path"
+    input_mod = "ATAC"

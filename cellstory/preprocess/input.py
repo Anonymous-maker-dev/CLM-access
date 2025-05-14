@@ -70,45 +70,74 @@ def prepare_pretrain_dataloader(args):
 def prepare_finetune_dataloader(args):
     # TODO add celltype support
     logger.info("Load finetune dataset")
-  
-    dataset,gene_tokens,  atac_vocab_size = load_dataset(args)
-    # prepare dataloader
-    is_train = True
-    logger.info("Convert finetune dataset to dataloader")
-    total_size = len(dataset)
-    val_size = int(total_size * 0.01)
-    train_size = total_size - val_size
-
-    logger.info(f"划分数据集: {train_size} 训练样本, {val_size} 验证样本")
-    val_batch_size = args.batch_size
-    while val_size % val_batch_size == 1:
+    if args.RNA_prediction:
+        dataset,gene_tokens, atac_vocab_size = load_dataset(args)
+        dataset_RNA = dataset[1]
+        dataset_ATAC = dataset[0]
+        is_train = True
+        logger.info("Convert finetune dataset to dataloader")
+        total_size = len(dataset_ATAC)
+        train_dataloader_ATAC = create_dataloader(
+            dataset_ATAC,
+            is_train=is_train,
+            batch_size=args.batch_size,
+            num_workers=args.num_workers,
+            pin_mem=args.pin_mem,
+            dist_eval=args.dist_eval,
+        )
         
-        val_batch_size = val_batch_size+1
-   
-        
-
-    # 设置随机种子以确保分割的可重复性
-    generator = torch.Generator().manual_seed(42)
-    train_dataset, val_dataset = random_split(dataset, [train_size, val_size], generator=generator)
+        train_dataloader_RNA = create_dataloader(
+            dataset_RNA,
+            is_train=is_train,
+            batch_size=args.batch_size,
+            num_workers=args.num_workers,
+            pin_mem=args.pin_mem,
+            dist_eval=args.dist_eval,
+        )
+        logger.info("创建验证 DataLoader")
+        train_dataloader = [train_dataloader_ATAC,train_dataloader_RNA]
     
-    train_dataloader = create_dataloader(
-        train_dataset,
-        is_train=is_train,
-        batch_size=args.batch_size,
-        num_workers=args.num_workers,
-        pin_mem=args.pin_mem,
-        dist_eval=args.dist_eval,
-    )
-    logger.info("创建验证 DataLoader")
-    val_dataloader = create_dataloader(
-        val_dataset,
-        is_train=False,
-        batch_size=val_batch_size,
-        num_workers=args.num_workers,
-        pin_mem=args.pin_mem,
-        dist_eval=args.dist_eval,
-    )
-    return train_dataloader, val_dataloader,gene_tokens,  atac_vocab_size
+        val_dataloader = []
+        return train_dataloader, val_dataloader,gene_tokens,atac_vocab_size
+    else:
+        dataset,gene_tokens,  atac_vocab_size = load_dataset(args)
+        # prepare dataloader
+        is_train = True
+        logger.info("Convert finetune dataset to dataloader")
+        total_size = len(dataset)
+        val_size = int(total_size * 0.01)
+        train_size = total_size - val_size
+
+        logger.info(f"划分数据集: {train_size} 训练样本, {val_size} 验证样本")
+        val_batch_size = args.batch_size
+        while val_size % val_batch_size == 1:
+            
+            val_batch_size = val_batch_size+1
+    
+            
+
+        # 设置随机种子以确保分割的可重复性
+        generator = torch.Generator().manual_seed(42)
+        train_dataset, val_dataset = random_split(dataset, [train_size, val_size], generator=generator)
+        
+        train_dataloader = create_dataloader(
+            train_dataset,
+            is_train=is_train,
+            batch_size=args.batch_size,
+            num_workers=args.num_workers,
+            pin_mem=args.pin_mem,
+            dist_eval=args.dist_eval,
+        )
+        logger.info("创建验证 DataLoader")
+        val_dataloader = create_dataloader(
+            val_dataset,
+            is_train=False,
+            batch_size=val_batch_size,
+            num_workers=args.num_workers,
+            pin_mem=args.pin_mem,
+            dist_eval=args.dist_eval,
+        )
+        return train_dataloader, val_dataloader,gene_tokens,  atac_vocab_size
 
 
 def prepare_inference_dataloader(args):
@@ -156,6 +185,10 @@ def load_atac_dataset(args):
         if args.cell_type_annotation or args.batch_correction:
             
             dataset,gene_tokens = load_numpy_dataset(args.atac_dataset_path,args.context_length+1,args.peak_length,args)
+        if args.RNA_prediction:
+            dataset_atac,gene_tokens = load_numpy_dataset(args.atac_dataset_path,args.context_length,args.peak_length,args)
+            dataset_rna = load_huggingface_dataset(args.hvg_rna_dataset_path)
+            dataset = [dataset_atac,dataset_rna]
         else:
             dataset,gene_tokens = load_numpy_dataset(args.atac_dataset_path,args.context_length,args.peak_length,args)
         # dataset = load_huggingface_dataset(args.atac_dataset_path)

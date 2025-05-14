@@ -34,13 +34,17 @@ pip install snapatac2 -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 ```
 
+
 ## Data preprocessing
 Process the pre-training files and fine-tuning files in the paper.
 ```bash
 python scripts/run_data_preprocessing_pretrain_data.py
 python scripts/run_data_preprocessing_finetune_data.py
 ```
-
+Process the gene expresstion prediction files in the paper.
+```bash
+python scripts/run_ATAC_RNA_data_preprocessing.py
+```
 ## Pre-training
 
 To train the model(s) in the paper, run this command:
@@ -53,14 +57,20 @@ python run_pretrain.py with pretrain_atac --force
 
 ## Fine-tuning
 
-To fine-tuning the model(s) in the paper, run this command:
+To fine-tuning Remove the batch effect and cell type annotation  in the paper, run this command:
 Fine-tuning script: `scripts/run_finetune.py`
 Parameter configuration: `configs/config_finetune.py` （The path needs to be modified when in use）
 `ATAC` Fine-tuning
 ```train
 python run_finetune.py with finetune_atac --force
 ```
-
+To fine-tuning  gene expresstion prediction in the paper, run this command:
+Fine-tuning script: `scripts/run_finetune_RNA.py`
+Parameter configuration: `configs/config_finetune.py` （The path needs to be modified when in use）
+`ATAC` Fine-tuning
+```train
+python run_finetune.py with finetune_atac_rna --force
+```
 
 
 ## Evaluation
